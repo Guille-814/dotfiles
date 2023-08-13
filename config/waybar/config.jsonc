@@ -1,0 +1,193 @@
+[{
+    //"include": "~/.config/waybar/custom_modules/modules",
+    "height": 20,
+    "layer": "top",
+    "margin-top": 0,
+    "margin-left": 0,
+    "margin-bottom": 0,
+    "margin-right": 0,
+    "spacing": 3,
+   
+    // Choose the order of the modules
+
+    "modules-left": [
+      "custom/menu",
+      "wlr/workspaces",
+      "tray", 
+      "custom/media" 
+     ],
+
+    "modules-center": [
+      "clock",
+      "custom/pacman"
+     ],
+
+    "modules-right": [
+      "cpu",
+      "memory",
+      "temperature",
+      "pulseaudio",
+      "network",
+      "custom/swww"
+     ],
+
+    "wlr/workspaces": {
+    	"format": "{icon}",
+   	 "on-click": "activate",
+   	 "all-outputs": true,
+   	 "sort-by-number": true,
+   	 "format-icons": {
+        "1": "一",
+        "2": "二",
+	    "3": "三",
+     	"4": "四",
+        "5": "五",
+     	"6": "六",
+        "7": "七",
+        "8": "八",
+        "9": "九",
+        "10": "十",
+        "focused": "",
+        "default": ""
+    },
+    "on-scroll-up": "hyprctl dispatch workspace e+1",
+    "on-scroll-down": "hyprctl dispatch workspace e-1"
+  },
+
+    "clock": {
+        "format":"{:%H:%M}",
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+        "format-alt": "<b>{:%a %d, %b | %H:%M}</b>"
+    },
+
+    "network": {
+        // "interface": "wlp2*", // (Optional) To force the use of this interface
+        "format-wifi": "{essid}  ",
+        "format-ethernet": "{ipaddr}/{cidr} ",
+        "tooltip-format": "{ifname} via {gwaddr} ",
+        "format-linked": "{ifname} (No IP) ",
+        "format-disconnected": "Disconnected ⚠",
+        "format-alt": "{ifname}: {ipaddr}/{cidr}"
+    },
+
+    "pulseaudio": {
+        "format": "{icon} {volume}% | {format_source}%",
+        /*"format": "{icon} {volume}",*/
+        /*"format": "{icon}",*/
+        "format-muted": "󰖁 Mute",
+        "format-bluetooth": " {volume}% | {format_source}%",
+        "format-bluetooth-muted": "    Mute",
+        "format-source": " {volume}",
+        "format-source-muted": "",
+        "format-icons": {
+          "headphone": "",
+          "hands-free": "",
+          "headset": "",
+          "phone": "",
+          "portable": "",
+          "car": "",
+          "default": ["󰕾", "󰕾", "󰕾"]
+        },
+        "scroll-step": 5.0,
+        "on-click": "amixer -q sset Master toggle",
+        "on-click-right": "pavucontrol",
+        "on-scroll-up": "amixer -q sset Master 5%+",
+        "on-scroll-down": "amixer -q sset Master 5%-",
+        "smooth-scrolling-threshold": 1
+    }, 
+
+
+    "custom/media": {
+        "format": "{icon} {}",
+        "return-type": "json",
+        "max-length": 40,
+        "format-icons": {
+	    "spotify": " ",
+            "default": " "
+        },
+
+        "escape": true,
+        "exec": "$HOME/.config/waybar/mediaplayer.py 2> /dev/null" // Script in resources folder
+        // "exec": "$HOME/.config/waybar/mediaplayer.py --player spotify 2> /dev/null" // Filter player based on name
+
+    },
+
+    "custom/spotify": {
+    	"format": "{icon} {}",
+	"return-type": "json",
+	"max-lenght": 40,
+	"format-icons": {
+		"spotify": " "
+		},
+	"escape": true,
+	"exec": "$HOME/.config/waybar/mediaplayer.py 2> /dev/null"
+    },
+
+    "custom/swww": {
+    "format": "->",
+    "on-click": "~/.config/swww/swwwallpaper.sh -n",
+    "on-click-right": "~/.config/swww/swwwallpaper.sh -p",
+    "on-click-middle": "~/.config/rofi/wallselect", 
+    "tooltip": false
+    },
+
+    "custom/menu": {
+    "format": "",
+	"on-click": "wofi" ,
+	"on-click-right": "~/.config/waybar/powermenu/powermenu.sh",
+	"tooltip": false
+    },
+
+    "cpu": {
+        "format": " {usage}%  ",
+        "tooltip": false,
+        "on-click": "kitty --start-as=fullscreen sh -c 'btop'"
+    },
+
+    "memory": {
+        "icon-size": 18,
+        "format": " {}% 󰍛 ",
+        "on-click": "kitty --start-as=fullscreen sh -c 'btop'"
+    },
+
+    "temperature": {
+        "thermal-zone": 2,
+        "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
+        "critical-threshold": 80,
+        "format-critical": "{temperatureC}°C {icon} ",
+        "format": "{temperatureC}°C{icon}",
+        "format-icons": [" 󰏈 ", "  ", "  "],
+        "on-click": "kitty --start-as=fullscreen sh -c 'btop'"
+    },
+
+    "custom/pacman": {
+    "format": "{}  ",
+    "interval": 600,                     // Interval in seconds
+    "exec": "checkupdates-with-aur | wc -l",       // # of updates
+    "exec-if": "exit 0",                  // always run; consider advanced run conditions
+    "on-click": "kitty --start-as=normal sh -c 'yay -Syu'; pkill -SIGRTMIN+8 waybar", // update system
+    "signal": 8
+},
+
+    "custom/notification": {
+    "tooltip": false,
+    "format": "{icon}",
+    "format-icons": {
+      "notification": "<span foreground='red'><sup></sup></span>",
+      "none": "",
+      "dnd-notification": "<span foreground='red'><sup></sup></span>",
+      "dnd-none": "",
+      "inhibited-notification": "<span foreground='red'><sup></sup></span>",
+      "inhibited-none": "",
+      "dnd-inhibited-notification": "<span foreground='red'><sup></sup></span>",
+      "dnd-inhibited-none": ""
+    },
+    "return-type": "json",
+    "exec-if": "which swaync-client",
+    "exec": "swaync-client -swb",
+    "on-click": "swaync-client -t -sw",
+    "on-click-right": "swaync-client -d -sw",
+    "escape": true
+  }
+
+}]

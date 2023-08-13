@@ -1,0 +1,131 @@
+#!/usr/bin/env sh
+
+set -x
+
+## define functions ##
+Wall_Next()
+{
+    WallSet=$(readlink "$BASEDIR/wall.set")
+    Wallist=("$BASEDIR"/wallpapers/*)
+
+    for ((i=0; i<${#Wallist[@]}; i++))
+    do
+        if [ $((i + 1)) -eq ${#Wallist[@]} ] ; then
+            ln -fs "${Wallist[0]}" "$BASEDIR/wall.set"
+            break
+        elif [ "${Wallist[i]}" == "${WallSet}" ] ; then
+            ln -fs "${Wallist[i+1]}" "$BASEDIR/wall.set"
+            break
+        fi
+    done
+}
+
+Wall_Previous()
+{
+    WallSet=$(readlink "$BASEDIR/wall.set")
+    Wallist=("$BASEDIR"/wallpapers/*)
+    prev_index=-1
+
+    for ((i=0; i<${#Wallist[@]}; i++))
+    do
+        if [ "${Wallist[i]}" == "${WallSet}" ] ; then
+            prev_index=$((i - 1))
+            break
+        fi
+    done
+
+    if [ $prev_index -lt 0 ] ; then
+        ln -fs "${Wallist[${#Wallist[@]} - 1]}" "$BASEDIR/wall.set"
+    else
+        ln -fs "${Wallist[$prev_index]}" "$BASEDIR/wall.set"
+    fi
+}
+
+Wall_Set()
+{
+    if [ "$WALLMODE" == "default" ]; then
+        swww img "$BASEDIR/wall.set" \
+        --transition-bezier .43,1.19,1,.4 \
+        --transition-type right \
+        --transition-duration 1 \
+        --transition-fps 144 \
+        --transition-pos bottom-right
+    elif [ "$WALLMODE" == "previous" ]; then
+        swww img "$BASEDIR/wall.set" \
+        --transition-bezier .43,1.19,1,.4 \
+        --transition-type left \
+        --transition-duration 1 \
+        --transition-fps 144 \
+        --transition-pos bottom-right
+    elif [ "$WALLMODE" == "specific" ]; then
+        swww img "$BASEDIR/wall.set" \
+        --transition-bezier .43,1.19,1,.4 \
+        --transition-type top \
+        --transition-duration 1 \
+        --transition-fps 144 \
+        --transition-pos bottom-right
+    fi
+}
+
+Set_Wallpaper()
+{
+    Wallpaper="$1"
+    if [ -f "$Wallpaper" ]; then
+        ln -fs "$Wallpaper" "$BASEDIR/wall.set"
+        WALLMODE="specific"
+        echo "Wallpaper set to: $Wallpaper"
+    else
+        echo "ERROR: Wallpaper not found: $Wallpaper"
+    fi
+}
+
+## main script ##
+BASEDIR=~/.config/swww
+WALLMODE="default"
+
+## check linked file ##
+if [ ! -f "$BASEDIR/wall.set" ] ; then
+    echo "ERROR: wallpaper link is broken"
+    exit 1
+fi
+
+## evaluate options ##
+while getopts "ns:p" option ; do
+    case $option in
+    n ) # set the next wallpaper
+        WALLMODE="default"
+        Wall_Next ;;
+    s ) # set a specific wallpaper
+        Set_Wallpaper "$OPTARG" ;;
+    p ) # set the previous wallpaper
+        WALLMODE="previous"
+        Wall_Previous ;;
+    \? ) # invalid option
+        echo "Invalid option: -$OPTARG"
+        exit 1 ;;
+    : ) # option requires an argument
+        if [ "$OPTARG" == "n" ]; then
+            WALLMODE="default"
+            Wall_Next
+        elif [ "$OPTARG" == "p" ]; then
+            WALLMODE="previous"
+            Wall_Previous
+        else
+            echo "Option -$OPTARG requires an argument"
+            exit 1
+        fi
+        ;;
+    esac
+done
+
+## check swww daemon ##
+swww query
+if [ $? -eq 1 ] ; then
+    swww init
+    sleep 2.5
+fi
+
+## set wallpaper ##
+Wall_Set
+convert -scale 10% -blur 0x2.5 -resize 1000% "$BASEDIR/wall.set" "$BASEDIR/wall.blur"
+

@@ -1,0 +1,28 @@
+#!/usr/bin/bash
+
+wallpapers_dir="$HOME/.config/swww/wallpapers"
+rofi_command="rofi -dmenu -theme $HOME/.config/rofi/config.rasi"
+
+# List rices
+options=()
+selected_index=0
+
+while IFS= read -r -d '' image; do
+    image_name=$(basename "$image")
+    options+=("$image_name")
+
+    # Verificar si la imagen actual coincide con la imagen seleccionada
+    if [[ "$selected" == "$image_name" ]]; then
+        selected_index=${#options[@]}-1
+    fi
+done < <(find "$wallpapers_dir" -maxdepth 1 -type f -print0)
+
+# Show the rofi selection menu with the starting point set to the current rice and store the result in a variable.
+selected=$(printf "%s\n" "${options[@]}" | $rofi_command -selected-row "$selected_index")
+
+# If a valid option was selected, write the value to the configuration file
+if [[ -n "$selected" ]]; then
+    $HOME/.config/swww/swwwallpaper.sh -s "$wallpapers_dir/$selected" &
+fi
+
+exit 0
