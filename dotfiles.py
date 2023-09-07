@@ -15,7 +15,7 @@ def checkbashrc(f):
     return recentfile
 
 
-def verifydate(files):
+def verifydate(files,mode):
     HOME = os.getenv("HOME")
     path1 = HOME + "/.config/"
     path2 = os.getcwd()
@@ -38,11 +38,20 @@ def verifydate(files):
                     file2date = os.path.getmtime(filepath2)
                     #compare dates
                     if file1date > file2date:
-                        pass 
+                        recent.append(filepath1)
                     else:
                         recent.append(filepath2)
             else:
                 recent.append(filepath1)
+    if mode == "1":
+        for i in recent:
+            if "/.config" in i or os.getenv("HOME") in i:
+                recent.remove(i)
+    else:
+        for i in recent:
+            if "/config/" in i:
+                recent.remove(i)
+
     return recent
 
 
@@ -83,21 +92,67 @@ def copytodots(recent):
                         print("Skipping " + f + "...")
 
 
+def copytodots2(recent):
+    changes = ""
+    for f in recent:
+        changes +=  f + " will be copied to dotfiles/config/ \n"
+    print("The following changes will be made:")
+    print(changes)
+    verify = input("Are you sure you want to make these canges? (Y/n) \n ->")
+    if verify == "" or verify == "y" or verify == "Y":
+        for f in recent:
+            os.system("cp -r " + f + " config/")
+    else:
+        print("Automatic copy aborted")
+        manual = input("Do you want to manually select what files do you want to copy (from previously checked most recent files)? (N/y) \n ->")
+        if manual == "y" or manual == "Y":
+            for f in recent:
+                confirm = input("Do you want to copy this file (N/y): \n" + f + "\n ->")
+                if confirm == "y" or confirm == "Y":
+                    os.system("cp -r " +f + " config/")
+                    print(f + " has been copied")
+                else:
+                    print("Skipping " + f + "...")
+
 
 def main():
     os.chdir("config/")
-    
-    gitpull = input("Do you want to start with a git pull? (Y/n) \n -> ")
-    if gitpull == "N" or gitpull == "n":
-        pass
-    else:
-        if os.system("git pull origin main") == 1:
-            print("Git pull failed")
-            sys.exit()
-    files = os.listdir()
-    
-    recent = verifydate(files)
-    copytodots(recent)
+    while True
+        mode = input("What do you want to do (1/2)? \n 1) Copy to local \n 2) Copy from local \n -> ")
+
+        if mode == "1":
+            gitpull = input("Do you want to start with a git pull? (Y/n) \n -> ")
+            if gitpull == "N" or gitpull == "n":
+                pass
+            else:
+                if os.system("git pull origin main") == 1:
+                    print("Git pull failed")
+                    sys.exit()
+            files = os.listdir()
+            
+            recent = verifydate(files,mode)
+            copytodots(recent)
+            break 
+        elif mode == "2":
+            print("""[!] This script will check for newer versions of folders/files that are all ready on the dotfiles folder[!]
+                  if you want to add new folders/files to the dotfiles folders you will have to do it manually""")
+            
+            files = os.listdir()
+            
+            recent = verifydate(files,mode)
+            copytodots2(recent)
+            
+            gitpush = input("Do you want to finish with a git push? (Y/n) \n -> ")
+            if gitpull == "N" or gitpull == "n":
+                pass
+            else:
+                os.system("git add .")
+                os.system("git commit -m \"update\" ")
+                os.system("git push origin main")
+
+        else:
+            print("Invalid option")
+            break 
 
 
 if __name__ == '__main__':
