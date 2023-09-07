@@ -70,8 +70,8 @@
 ; method = pipewire
 ; source = source
 
-; method = pulse
-; source = auto
+ method = pulse
+ source = auto
 
 ; method = alsa
 ; source = hw:Loopback,1

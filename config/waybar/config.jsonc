@@ -1,6 +1,6 @@
 [{
     //"include": "~/.config/waybar/custom_modules/modules",
-    "height": 20,
+    "height": 35,
     "layer": "top",
     "margin-top": 0,
     "margin-left": 0,
@@ -12,7 +12,7 @@
 
     "modules-left": [
       "custom/menu",
-      "wlr/workspaces",
+      "hyprland/workspaces",
       "tray", 
       "custom/media" 
      ],
@@ -31,8 +31,8 @@
       "custom/swww"
      ],
 
-    "wlr/workspaces": {
-    	"format": "{icon}",
+    "hyprland/workspaces": {
+     "format": "{icon}",
    	 "on-click": "activate",
    	 "all-outputs": true,
    	 "sort-by-number": true,
@@ -50,8 +50,8 @@
         "focused": "",
         "default": ""
     },
-    "on-scroll-up": "hyprctl dispatch workspace e+1",
-    "on-scroll-down": "hyprctl dispatch workspace e-1"
+    "on-scroll-up": "hyprctl dispatch workspace e+2",
+    "on-scroll-down": "hyprctl dispatch workspace e-2"
   },
 
     "clock": {

@@ -60,7 +60,7 @@ window#waybar.empty {
   background: rgba(0,0,0,0.5);
   color: #F9E2AF;
   /*border: 2px solid #3a3b3c; */
-	/*animation: rgb 1s linear infinite alternate;*/
+	animation: rgb 1s linear infinite alternate;
 }
 
 #workspaces {
@@ -147,7 +147,7 @@ window#waybar.empty {
 }
 
 #custom-menu {
-  margin-left: 6px;
+  margin-left: 4px;
 	color: #f38ba8;
 }
 
